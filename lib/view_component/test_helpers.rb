@@ -84,6 +84,7 @@ module ViewComponent
     # @param params [Hash] Parameters to be passed to the preview.
     # @return [Nokogiri::HTML]
     def render_preview(name, from: __vc_test_helpers_preview_class, params: {})
+      # TODO: This should stay against Rails app config, but should be moved under a `preview` namespace.
       previews_controller = __vc_test_helpers_build_controller(Rails.application.config.view_component.preview_controller.constantize)
 
       # From what I can tell, it's not possible to overwrite all request parameters

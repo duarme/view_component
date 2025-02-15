@@ -12,6 +12,7 @@ module Locale
       class_option :sidecar, type: :boolean, default: false
 
       def create_locale_file
+        # TODO: This should be app-local config
         if ViewComponent::Base.config.generate.distinct_locale_files
           I18n.available_locales.each do |locale|
             create_file destination(locale), translations_hash([locale]).to_yaml

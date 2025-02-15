@@ -23,6 +23,7 @@ module ViewComponent # :nodoc:
     private
 
     def notification_name
+      # TODO: This code path and associated config option should be removed outright.
       return "!render.view_component" if ViewComponent::Base.config.use_deprecated_instrumentation_name
 
       "render.view_component"

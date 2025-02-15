@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
 require "rails"
-require "view_component/config"
 require "view_component/deprecation"
 
 module ViewComponent
   class Engine < Rails::Engine # :nodoc:
-    config.view_component = ViewComponent::Config.current
-
     if Rails.version.to_f < 8.0
       rake_tasks do
         load "view_component/rails/tasks/view_component.rake"
@@ -29,18 +26,13 @@ module ViewComponent
     initializer "view_component.set_configs" do |app|
       options = app.config.view_component
 
-      %i[generate preview_controller preview_route show_previews_source].each do |config_option|
-        options[config_option] ||= ViewComponent::Base.public_send(config_option)
-      end
-      options.instrumentation_enabled = false if options.instrumentation_enabled.nil?
-      options.show_previews = (Rails.env.development? || Rails.env.test?) if options.show_previews.nil?
-
       if options.show_previews
         # This is still necessary because when `config.view_component` is declared, `Rails.root` is unspecified.
         options.preview_paths << "#{Rails.root}/test/components/previews" if defined?(Rails.root) && Dir.exist?(
           "#{Rails.root}/test/components/previews"
         )
 
+        # TODO: Needs to run in an app load hook, so this should be Rails app-local. So it might be fine as-is?
         if options.show_previews_source
           require "method_source"
 
@@ -53,6 +45,7 @@ module ViewComponent
 
     initializer "view_component.enable_instrumentation" do |app|
       ActiveSupport.on_load(:view_component) do
+        # TODO: This config option probably needs to stay against the Rails app.
         if app.config.view_component.instrumentation_enabled.present?
           # :nocov: Re-executing the below in tests duplicates initializers and causes order-dependent failures.
           ViewComponent::Base.prepend(ViewComponent::Instrumentation)
@@ -70,6 +63,7 @@ module ViewComponent
     # :nocov:
     initializer "view_component.enable_capture_patch" do |app|
       ActiveSupport.on_load(:view_component) do
+        # TODO: This probably can't be moved.
         ActionView::Base.include(ViewComponent::CaptureCompatibility) if app.config.view_component.capture_compatibility_patch_enabled
       end
     end

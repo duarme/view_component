@@ -16,6 +16,7 @@ module Rspec
       private
 
       def spec_component_path
+        # TODO: This is probably Rails app-local config too.
         return "spec/components" unless ViewComponent::Base.config.generate.use_component_path_for_rspec_tests
 
         configured_component_path = component_path

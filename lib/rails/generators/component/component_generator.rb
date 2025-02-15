@@ -13,6 +13,7 @@ module Rails
       check_class_collision suffix: "Component"
 
       class_option :inline, type: :boolean, default: false
+      # TODO: Settings in this file should be Rails app-local config.
       class_option :locale, type: :boolean, default: ViewComponent::Base.config.generate.locale
       class_option :parent, type: :string, desc: "The parent class for the generated component"
       class_option :preview, type: :boolean, default: ViewComponent::Base.config.generate.preview

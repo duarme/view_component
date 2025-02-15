@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "action_view"
-require "active_support/configurable"
 require "view_component/collection"
 require "view_component/compile_cache"
 require "view_component/compiler"
@@ -19,17 +18,6 @@ require "view_component/use_helpers"
 
 module ViewComponent
   class Base < ActionView::Base
-    class << self
-      delegate(*ViewComponent::Config.defaults.keys, to: :config)
-
-      # Returns the current config.
-      #
-      # @return [ActiveSupport::OrderedOptions]
-      def config
-        ViewComponent::Config.current
-      end
-    end
-
     include ViewComponent::InlineTemplate
     include ViewComponent::UseHelpers
     include ViewComponent::Slotable
@@ -542,6 +530,7 @@ module ViewComponent
         child.identifier = caller_locations(1, 10).reject { |l| l.base_label == "inherited" }[0].path
 
         # If Rails application is loaded, removes the first part of the path and the extension.
+        # FIXME: This seems like it'll be inflexible to configuration right now.
         if defined?(Rails) && Rails.application
           child.virtual_path = child.identifier.gsub(
             /(.*#{Regexp.quote(ViewComponent::Base.config.view_component_path)})|(\.rb)/, ""
